@@ -177,31 +177,36 @@ class Evolution:
         return d
 
 
-def autocovariance(X, tau=0):
+def autocovariance(X, lag=0):
     # dT, dX = np.shape(X)
     dT = X.shape[0]
     s = 0.0
     dN = 1
-    if tau > 0:
-        x1 = X[:-tau, ...]
+    if lag > 0:
+        x1 = X[:-lag, ...]
     else:
         x1 = X
-    x2 = X[tau:, ...]
+    x2 = X[lag:, ...]
+
     s = np.sum(x1 * x2, axis=0) / dN
 
-    return s / (dT - tau)
+    return s / (dT - lag)
 
 
 def acl_spectrum(X, n=150, scale=None):
-    scale = np.array(scale) if scale is not None else np.sqrt(autocovariance(X, tau=0))
+    """
+    """
+    scale = np.array(scale) if scale is not None else np.sqrt(autocovariance(X, lag=0))
     return np.stack(
-        [autocovariance(X / (scale[None, ...] + 1e-7), tau=t) for t in range(n - 1)],
+        [autocovariance(X / (scale[None, ...] + 1e-7), lag=t) for t in range(n - 1)],
         axis=0,
     )
 
 
 def ESS(A):
-    # ess = ESS(acl_spectrum((trunc_sample - trunc_sample.mean(0)[None, ...]))).mean()
+    """
+    ess = ESS(acl_spectrum((trunc_sample - trunc_sample.mean(0)[None, ...]))).mean()
+    """
     A = A * (A > 0.05)
     ess = 1.0 / (1.0 + 2 * np.sum(A[1:, ...], axis=0))
     return ess
